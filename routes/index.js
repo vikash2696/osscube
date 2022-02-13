@@ -1,10 +1,10 @@
 const router = require('express').Router();
 const userController = require('../controllers/user');
-// const empController = require('../controllers/emplpoyee');
+const courseController = require('../controllers/course');
 
 console.log('Index router');
 router.use('/user', userController);
-// router.use('/employee', empController);
+router.use('/course', courseController);
 
 
 module.exports = router;

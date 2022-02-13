@@ -6,12 +6,31 @@ router.get('/users', function(req, res) {
     userModel.find({},(err, data) => {
         if(!err) {
             console.log(data);
-            res.status(200).send({status : 'ok', data});
+            res.render('pages/listUser',{
+                data
+            });
+            // res.status(200).send({status : 'ok', data});
         }else {
             console.log(err);
-            res.status(400).send('Something went wrong');
+            res.send('Something went wrong');
         }
     })
+});
+
+router.get('/userCourse', function(req, res) {
+   userModel.aggregate([
+       {
+           $lookup : {
+           from : 'courses',
+           localField : 'userID',
+           foreignField : 'userID',
+           as : 'userData'
+       }
+    }
+   ],
+   function(err, data) {
+       return res.json(data);
+   })
 });
 
 router.get("/:userID", (req, res) => {
@@ -25,10 +44,10 @@ router.get("/:userID", (req, res) => {
     });
   });
 
-router.post('/add', async (req, res) => {
+router.post('/add', (req, res) => {
     console.log(req.body);
     const UserData = new userModel(req.body);
-    await UserData.save().then((result) => {
+    UserData.save().then((result) => {
         console.log('data saved succesfully');
         res.status(200).send({status : 'ok', result});
     }).catch((err) => {
@@ -39,10 +58,10 @@ router.post('/add', async (req, res) => {
     
 });
 
-router.patch('/user/update/:userID',async (req,res) => {
+router.patch('/user/update/:userID',(req,res) => {
     const userID = req.params.userID;
     console.log(userID);
-    await userModel.findOneAndUpdate({userID}, req.body,{upsert : false})
+    userModel.findOneAndUpdate({userID}, req.body,{upsert : false})
     .then((result) => {
         console.log('Data updated');
         res.status(200).send({status : 'ok', result});
